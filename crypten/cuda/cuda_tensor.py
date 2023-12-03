@@ -241,6 +241,16 @@ class CUDALongTensor:
     @staticmethod
     @implements(torch.matmul)
     def matmul(x, y, *args, **kwargs):
+        # CuPy
+        if isinstance(x, CUDALongTensor):
+            x = x._tensor
+        if isinstance(y, CUDALongTensor):
+            y = y._tensor
+        import cupy as cp
+        xx = cp.asarray(x)
+        yy = cp.asarray(y)
+        return CUDALongTensor(torch.as_tensor(cp.matmul(xx, yy)))
+
         # Use 4 blocks if each dot product is 256 elements or larger to prevent overflow in the sum
         nb = 3 if x.size(-1) < 256 else 4
 
