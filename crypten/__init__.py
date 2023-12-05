@@ -5,7 +5,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 import builtins
 import copy
@@ -66,7 +66,8 @@ def init(config_file=None, party_name=None, device=None):
 
     # Initialize communicator
     # os.environ["GLOO_SOCKET_IFNAME"] = "en0"
-    comm._init(use_threads=False, init_ttp=crypten.mpc.ttp_required())
+    activation_tp = os.environ.get('ENABLE_ATP', 'false').lower() == 'true'
+    comm._init(use_threads=False, init_ttp=(crypten.mpc.ttp_required() or activation_tp))
 
     # Setup party name for file save / load
     if party_name is not None:
