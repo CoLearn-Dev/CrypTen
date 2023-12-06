@@ -247,9 +247,12 @@ class CUDALongTensor:
         if isinstance(y, CUDALongTensor):
             y = y._tensor
         import cupy as cp
-        xx = cp.asarray(x)
-        yy = cp.asarray(y)
-        return CUDALongTensor(torch.as_tensor(cp.matmul(xx, yy)))
+        with cp.cuda.Device(x.device.index):
+            xx = cp.asarray(x)
+            yy = cp.asarray(y)
+            zz = cp.matmul(xx, yy)
+        z = torch.as_tensor(zz, device=x.device)
+        return CUDALongTensor(z)
 
         # Use 4 blocks if each dot product is 256 elements or larger to prevent overflow in the sum
         nb = 3 if x.size(-1) < 256 else 4
